@@ -168,7 +168,7 @@
         noMemo = false;
         acc = collection[0];
       } else {
-        acc = iterator(acc, i);  
+        acc = iterator(acc, i);
       }
     });
     return acc;
@@ -189,12 +189,35 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    var noIt = arguments.length < 2;
+    if (noIt) {
+      return _.reduce(collection, function(first, i) {
+        return !!(i) && first;
+      });
+    } else {
+        return _.reduce(collection, function(first, i) {
+        return !!iterator(i) && first;
+        }, true);
+      }
+
     // TIP: Try re-using reduce() here.
+
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    var noIt = arguments.length < 2;
+    if (collection.length == 0) {return false};
+    if (noIt) {return _.reduce(collection, function(first, i) {
+      return !!(i) && !!first;
+    });}
+    return !_.every(collection, function(i) {
+      return !iterator(i);
+      });
+
+
+
     // TIP: There's a very clever way to re-use every() here.
   };
 
@@ -218,11 +241,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(inputObj) {
+      _.each(inputObj, function(a, b) {
+        obj[b] = a;
+      })
+    })
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(inputObj) {
+      _.each(inputObj, function(a, b) {
+        if (obj[b] == undefined) {
+          obj[b] = a;
+        }
+      })
+    })
+    return obj;
   };
 
 
@@ -289,6 +326,15 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var random = [];
+    var x = array.slice(0, array.length);
+    for (var i = 0; i < array.length; i++) {
+      var floor = Math.floor(Math.random() * x.length);
+      random.push(x[floor]);
+      x.splice(floor,1)
+    }
+    return random;
+
   };
 
 
