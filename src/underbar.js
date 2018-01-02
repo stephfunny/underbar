@@ -100,13 +100,31 @@
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator) {
-    var uniq = [];
-    _.each(array, function(i) {
-      if (!uniq.includes(array[i])) {
-      uniq.push(array[i]);
-      }
-    });
-    return uniq;
+//    return 'the value of arguments is ' + arguments[0];
+    //return iterator(0);
+    function unique(array) {
+        var uniq = [];
+        _.each(array, function(currVal, i) {
+          if (!uniq.includes(currVal)) {
+            uniq.push(array[i]);
+          }
+        });
+      return uniq;
+    }
+
+    if (arguments.length === 3) {
+       var uniq = [];
+       var uniqIterated = [];
+       _.each(array, function(currVal, i) {
+         if (!uniqIterated.includes(iterator(currVal))) {
+           uniqIterated.push(iterator(currVal));
+           uniq.push(currVal);
+         }
+       });
+     return uniq;
+     } else {
+        return unique(array);
+    }
   };
 
 
@@ -128,7 +146,7 @@
    * as an example of this.
    */
 
-  // Takes an array of objects and returns and array of the values of
+  // Takes an array of objects and returns an array of the values of
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   _.pluck = function(collection, key) {
@@ -160,19 +178,34 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
+
   _.reduce = function(collection, iterator, accumulator) {
-    var acc = accumulator;
     var noMemo = arguments.length < 3;
-    _.each(collection, function(i) {
+    _.each(collection, function(currVal, i, collection) {
       if (noMemo) {
         noMemo = false;
-        acc = collection[0];
+        accumulator = collection[0];
       } else {
-        acc = iterator(acc, i);
+        accumulator = iterator(accumulator, currVal);
       }
     });
-    return acc;
+    return accumulator;
   };
+
+  // _.reduce = function(collection, iterator, accumulator) {
+  //   var acc = accumulator;
+  //   if (arguments.length < 3 ) {
+  //     acc = collection[0];
+  //     _.each(collection, function(curr, i, collection) {
+  //       acc = iterator(acc, curr);
+  //     });
+  //   } else {
+  //     _.each(collection, function(curr) {
+  //       acc = iterator(acc, curr);
+  //     });
+  //   }
+  //   return acc;
+  // };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
@@ -187,25 +220,45 @@
   };
 
 
-  // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     var noIt = arguments.length < 2;
     if (noIt) {
-      return _.reduce(collection, function(first, i) {
-        return !!(i) && first;
+      return _.reduce(collection, function(curr, i) {
+        return !!(i) && curr;
       });
     } else {
-        return _.reduce(collection, function(first, i) {
-        return !!iterator(i) && first;
+        return _.reduce(collection, function(curr, i) {
+        return !!iterator(i) && curr;
         }, true);
       }
+  }
 
-    // TIP: Try re-using reduce() here.
+  // Determine whether all of the elements match a truth test.
 
-  };
+  // _.every = function(collection, iterator) {
+  //   // TIP: Try re-using reduce() here.
+  //   var noIterator = arguments.length < 2;
+  //   if (noIterator) {
+  //     var x = _.reduce(collection, function(a, b) {
+  //       return (a) + (b);
+  //     }, false);
+  //     return x == collection.length;
+  //   } else {
+  //   var x = _.reduce(collection, function(a, b) {
+  //     return iterator(a) + iterator(b);
+  //   }, false);
+  //   if (typeof x === 'string') {
+  //     return true;
+  //   } else {
+  //     return x == collection.length; //'x is ' + x + ' and length is ' + collection.length;
+  //   };
+  //   }
+  // };
+
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
+
   _.some = function(collection, iterator) {
     var noIt = arguments.length < 2;
     if (collection.length == 0) {return false};
@@ -215,11 +268,14 @@
     return !_.every(collection, function(i) {
       return !iterator(i);
       });
+  }
 
-
+// _.some = function(collection, iterator) {
+//
+// }
 
     // TIP: There's a very clever way to re-use every() here.
-  };
+
 
 
   /**
@@ -248,6 +304,8 @@
     })
     return obj;
   };
+
+
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
@@ -285,7 +343,7 @@
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -302,16 +360,30 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
-  _.memoize = function(func) {
-  };
+  _.memoize = function(func, hasher) {
+    var memoize = function(key) {
+      var cache = memoize.cache;
+      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+      if (cache.has(address)) cache[address] = func.apply(this, arguments);
 
+        return cache[address];
+
+    };
+    memoize.cache = {};
+    return memoize;
+};
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
+  _.delay = function(func, wait, a, b) {
+    if (arguments.length == 2) {
+      return setTimeout(func, wait);
+    } else {
+      return setTimeout(func(a, b), wait);
+    }
   };
 
 
