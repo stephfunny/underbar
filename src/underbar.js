@@ -261,6 +261,12 @@
 
   _.some = function(collection, iterator) {
     var noIt = arguments.length < 2;
+    // if (noIt) {
+    //   var iterator = function(arr) {
+    //     if (_.each(arr))
+    //   }
+    // };
+//    return 'value of no It is ' + noIt;
     if (collection.length == 0) {return false};
     if (noIt) {return _.reduce(collection, function(first, i) {
       return !!(i) && !!first;
@@ -361,17 +367,37 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func, hasher) {
-    var memoize = function(key) {
-      var cache = memoize.cache;
-      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
-      if (cache.has(address)) cache[address] = func.apply(this, arguments);
+    var results = {};
+    return function() {
+      var prop = JSON.stringify(arguments);
 
-        return cache[address];
+      //console.log('results', results);
+      if (!(results.hasOwnProperty(prop))) {
+        results[prop] = func.apply(this, arguments);
+      }
+      return results[prop];
+     }
+}
+    // var cache = {};
+    // return function() {
+    //   var address = Array.prototype.slice.call(arguments);
+    //   if (address in cache) {
+    //     return cache[address];
+    //   } else {
+    //     cache[address] = func.apply(this, arguments);
+    //     return cache[address];
+    //   };
 
-    };
-    memoize.cache = {};
-    return memoize;
-};
+
+    // var memoize = function(key) {
+    //   var cache = memoize.cache;
+    //   var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+    //   if (!cache.has(address)) cache[address] = func.apply(this, arguments);
+    //   return cache[address];
+    // };
+    // memoize.cache = {};
+    // return memoize;
+
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
