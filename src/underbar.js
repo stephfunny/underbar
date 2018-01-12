@@ -259,26 +259,55 @@
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
 
-  _.some = function(collection, iterator) {
-    var noIt = arguments.length < 2;
-    // if (noIt) {
-    //   var iterator = function(arr) {
-    //     if (_.each(arr))
-    //   }
-    // };
-//    return 'value of no It is ' + noIt;
-    if (collection.length == 0) {return false};
-    if (noIt) {return _.reduce(collection, function(first, i) {
-      return !!(i) && !!first;
-    });}
-    return !_.every(collection, function(i) {
-      return !iterator(i);
+  _.some = function(collection, test) {
+    var anyPasses = false;
+    var noIterator = false;
+    console.log('arg length is ' + arguments.length)
+    if (arguments.length === 1) {
+      noIterator = true;
+    } else {
+    };
+if (!noIterator) {
+  console.log('is it');
+    _.each(collection, function(item) {
+      if (Boolean(test(item)) === true) {
+        anyPasses = true;
+      }
+    })
+  } else if (noIterator) {
+    console.log('is no it');
+      _.each(collection, function(item) {
+        if (Boolean(item) === true) {
+          anyPasses = true;
+        }
       });
+    }
+    return anyPasses;
   }
+    // console.log('test');
+    // console.log(_.some([true, true, true]));
+
+//     var noIt = arguments.length < 2;
+//     if (noIt) { iterator = _.identity();
+//     }
+//     // if (noIt) {
+//     //   var iterator = function(arr) {
+//     //     if (_.each(arr))
+//     //   }
+//     // };
+// //    return 'value of no It is ' + noIt;
+//     if (collection.length == 0) {return false};
+//     // if (noIt) {return _.reduce(collection, function(first, i) {
+//     //   return !!(i) && !!first;
+//     // });}
+//     return !_.every(collection, function(i) {
+//       return !iterator(i);
+//       });
+//   }
 
 // _.some = function(collection, iterator) {
 //
-// }
+
 
     // TIP: There's a very clever way to re-use every() here.
 
